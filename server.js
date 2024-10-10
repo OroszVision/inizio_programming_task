@@ -1,5 +1,5 @@
 const express = require('express');
-const puppeteer = require('puppeteer'); // Import puppeteer
+const puppeteer = require('puppeteer'); // Use puppeteer to automatically include Chromium
 const fs = require('fs');
 const path = require('path');
 
