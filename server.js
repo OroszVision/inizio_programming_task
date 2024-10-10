@@ -4,29 +4,30 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
+const PORT = process.env.PORT || 3000; // Use environment variable for the port
 app.use(express.json());
-app.use(express.static('public')); // Pro servírování HTML souborů
+app.use(express.static('public')); // Serve HTML files
 
-// Uložení výsledků pro konkrétní dotaz
+// Store latest results for a specific query
 let latestResults = []; 
 
-// Endpoint pro vyhledávání
+// Search endpoint
 app.post('/search', async (req, res) => {
     const query = req.body.query;
 
-    // Spuštění Puppeteer pro scraping
-    const browser = await puppeteer.launch();
+    // Launch Puppeteer for scraping
+    const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
     await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}`, { waitUntil: 'domcontentloaded' });
 
-    // Extrakce dat z výsledků
+    // Extract data from results
     const data = await page.evaluate(() => {
         const items = [];
-        const results = document.querySelectorAll('.g'); // Výsledky vyhledávání
+        const results = document.querySelectorAll('.g'); // Search results
         results.forEach(item => {
-            const title = item.querySelector('h3')?.innerText; // Titulek
-            const link = item.querySelector('a')?.href; // Odkaz
-            const snippet = item.querySelector('.VwiC3b')?.innerText || "No snippet available"; // Úryvek (s výchozí hodnotou)
+            const title = item.querySelector('h3')?.innerText; // Title
+            const link = item.querySelector('a')?.href; // Link
+            const snippet = item.querySelector('.VwiC3b')?.innerText || "No snippet available"; // Snippet
 
             if (title && link) {
                 items.push({ title, link, snippet });
@@ -35,22 +36,23 @@ app.post('/search', async (req, res) => {
         return items;
     });
 
-    await browser.close(); // Zavření prohlížeče
+    await browser.close(); // Close the browser
 
-    latestResults = data; // Uložení výsledků pro pozdější stažení
-    res.json(data); // Odeslání výsledků jako JSON
+    latestResults = data; // Store results for later download
+    res.json(data); // Send results as JSON
 });
 
-// Endpoint pro stažení výsledků jako JSON nebo CSV
+// Download endpoint for results as JSON or CSV
 app.get('/download', (req, res) => {
-    const format = req.query.format || 'json'; // Volitelný formát (JSON nebo CSV)
+    const format = req.query.format || 'json'; // Optional format (JSON or CSV)
     const filePath = path.join(__dirname, `results.${format}`);
 
-    // Uložení dat jako JSON nebo CSV
+    // Save data as JSON or CSV
     if (format === 'json') {
         fs.writeFileSync(filePath, JSON.stringify(latestResults, null, 2));
     } else if (format === 'csv') {
-        const csvContent = latestResults.map(result => `${result.title},${result.link},${result.snippet}`).join('\n');
+        const csvContent = "Title,Link,Snippet\n" + // Add headers
+            latestResults.map(result => `${result.title},${result.link},"${result.snippet.replace(/"/g, '""')}"`).join('\n');
         fs.writeFileSync(filePath, csvContent);
     }
 
@@ -58,11 +60,11 @@ app.get('/download', (req, res) => {
         if (err) {
             console.error('Error while sending file:', err);
         }
-        fs.unlinkSync(filePath); // Odstranění souboru po odeslání
+        fs.unlinkSync(filePath); // Delete file after sending
     });
 });
 
-// Spuštění serveru na portu 3000
-app.listen(3000, () => {
-    console.log('Server běží na http://localhost:3000');
+// Start server on specified port
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
