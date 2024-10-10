@@ -2,9 +2,8 @@
   "name": "google-scrape-app",
   "version": "1.0.0",
   "description": "A simple Google scraping application using Express and Puppeteer",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js", 
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,6 +14,6 @@
     "puppeteer": "^20.9.0" 
   },
   "engines": {
-    "node": ">=22.x" 
+    "node": ">=14.x" 
   }
 }
