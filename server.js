@@ -15,11 +15,14 @@ app.post('/search', async (req, res) => {
     const query = req.body.query;
 
     try {
+        const puppeteer = require('puppeteer-core');
+
         const browser = await puppeteer.launch({
-            headless: "new",
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
-            executablePath: '/usr/bin/google-chrome-stable' // Confirm this path is valid
+            headless: true,
+            executablePath: '/usr/bin/chromium', // Point to the installed Chromium
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
         });
+        
         
 
         const page = await browser.newPage();
