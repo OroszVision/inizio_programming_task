@@ -1,0 +1,107 @@
+/* Resetování stylů */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Tělo stránky */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #121212; /* Tmavé pozadí */
+    color: #e0e0e0; /* Světle šedý text */
+    line-height: 1.6; /* Větší mezera mezi řádky */
+}
+
+/* Styl pro hlavičku */
+h1 {
+    text-align: center;
+    margin: 20px 0;
+    color: #ffffff; /* Bílá barva pro hlavičku */
+}
+
+/* Formulář pro vyhledávání */
+#search-form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+#search-input {
+    padding: 10px;
+    border: 1px solid #444; /* Tmavě šedý okraj */
+    border-radius: 5px;
+    background-color: #1e1e1e; /* Tmavě šedé pozadí pro input */
+    color: #ffffff; /* Bílé písmo pro input */
+    width: 300px; /* Šířka inputu */
+}
+
+#search-input::placeholder {
+    color: #aaa; /* Světle šedý placeholder */
+}
+
+/* Tlačítko pro vyhledávání */
+button {
+    padding: 10px 15px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #6200ea; /* Tmavě fialové pozadí */
+    color: #ffffff; /* Bílé písmo */
+    cursor: pointer;
+    transition: background-color 0.3s; /* Efekt při hover */
+}
+
+button:hover {
+    background-color: #3700b3; /* Tmavší fialová při hover */
+}
+
+/* Styl pro výsledky vyhledávání */
+#results {
+    margin: 20px auto;
+    max-width: 800px; /* Maximální šířka pro výsledky */
+}
+
+.result {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #444; /* Tmavě šedý okraj */
+    border-radius: 5px;
+    background-color: #1e1e1e; /* Tmavé pozadí pro výsledek */
+}
+
+.result h3 {
+    margin-bottom: 5px;
+    color: #bb86fc; /* Světle fialový text pro titulek */
+}
+
+.result h3 a {
+    color: inherit; /* Dědí barvu z nadřazeného elementu */
+    text-decoration: none; /* Bez podtržení */
+}
+
+.result h3 a:hover {
+    text-decoration: underline; /* Podtržení při hover */
+}
+
+.result p {
+    margin: 5px 0;
+    color: #cccccc; /* Světle šedý text pro popis */
+}
+
+/* Styl pro tlačítko pro stažení */
+#download-results {
+    display: none; /* Skryté tlačítko, dokud nejsou výsledky */
+    margin: 20px auto;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #03dac5; /* Světle tyrkysová barva */
+    color: #ffffff; /* Bílé písmo */
+    cursor: pointer;
+    transition: background-color 0.3s; /* Efekt při hover */
+}
+
+#download-results:hover {
+    background-color: #018786; /* Tmavší tyrkysová při hover */
+}
