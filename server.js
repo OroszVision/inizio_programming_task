@@ -1,5 +1,5 @@
 const express = require('express');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer'); // Import puppeteer
 const fs = require('fs');
 const path = require('path');
 
@@ -15,16 +15,11 @@ app.post('/search', async (req, res) => {
     const query = req.body.query;
 
     try {
-        const puppeteer = require('puppeteer-core');
-
         const browser = await puppeteer.launch({
             headless: true,
-            executablePath: '/usr/bin/chromium', // Point to the installed Chromium
             args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
         });
         
-        
-
         const page = await browser.newPage();
         await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}`, { waitUntil: 'domcontentloaded' });
 
