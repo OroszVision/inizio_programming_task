@@ -4,18 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Search Scraper</title>
-    <link rel="stylesheet" href="css/styles.css"> 
+    <style>
+        #results .result { margin-bottom: 20px; }
+        #download-results { display: none; }
+    </style>
 </head>
 <body>
     <h1>Google Search Scraper</h1>
     <form id="search-form">
-        <input type="text" id="search-input" placeholder="Enter a search query" required>
+        <input type="text" id="search-input" placeholder="Enter search query">
         <button type="submit">Search</button>
     </form>
 
-    <button id="download-results" style="display:none;">Download Results</button>
     <div id="results"></div>
 
-    <script src="scripts/script.js"></script> 
+    <button id="download-results">Download Results</button>
+
+    <script src="script.js"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 document.getElementById('search-form').addEventListener('submit', async function (event) {
-    event.preventDefault(); 
-    const query = document.getElementById('search-input').value; 
+    event.preventDefault();
+    const query = document.getElementById('search-input').value;
 
     try {
         const response = await fetch('/search', {
@@ -29,14 +29,14 @@ document.getElementById('search-form').addEventListener('submit', async function
 
 function displayResults(results) {
     const resultsDiv = document.getElementById('results');
-    resultsDiv.innerHTML = ''; 
+    resultsDiv.innerHTML = '';
 
     results.forEach(result => {
         const div = document.createElement('div');
         div.classList.add('result');
 
         const url = new URL(result.link);
-        const domain = url.hostname; 
+        const domain = url.hostname;
 
         div.innerHTML = `
             <h3><a href="${result.link}" target="_blank">${result.title}</a></h3>
