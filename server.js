@@ -16,8 +16,8 @@ app.post('/search', async (req, res) => {
 
     try {
         const browser = await puppeteer.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
+            headless: true, // Launch browser in headless mode
+            args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required args for Puppeteer to work well in Docker environments
         });
         
         const page = await browser.newPage();
