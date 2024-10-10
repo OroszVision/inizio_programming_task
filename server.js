@@ -19,7 +19,7 @@ app.post('/search', async (req, res) => {
     const browser = await puppeteer.launch({
         headless: "new", // Use the new Headless mode for Puppeteer
         args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required for cloud environments like Render
-        executablePath: '/usr/bin/google-chrome-stable' // Path to Chrome installed by render-build.sh
+        executablePath: '/usr/bin/google-chrome', // Correct executable path
     });
 
     const page = await browser.newPage();
