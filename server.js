@@ -16,10 +16,11 @@ app.post('/search', async (req, res) => {
 
     try {
         const browser = await puppeteer.launch({
-            headless: true, // Launch browser in headless mode
-            args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required args for Puppeteer to work well in Docker environments
-        });
-        
+            headless: true,
+            executablePath: '/opt/render/project/.render/chrome/opt/google/chrome/chrome',
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+          });
+          
         const page = await browser.newPage();
         await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}`, { waitUntil: 'domcontentloaded' });
 
