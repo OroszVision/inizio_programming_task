@@ -1,19 +1,21 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vyhledávání Google</title>
+    <title>Google Search Scraper</title>
     <link rel="stylesheet" href="css/styles.css"> 
 </head>
 <body>
-    <h1>Vyhledávání na Googlu</h1>
+    <h1>Google Search Scraper</h1>
     <form id="search-form">
-        <input type="text" id="search-input" placeholder="Zadejte klíčové slovo" required>
-        <button type="submit">Hledat</button>
+        <input type="text" id="search-input" placeholder="Enter a search query" required>
+        <button type="submit">Search</button>
     </form>
-    <button id="download-results" style="display:none;">Stáhnout výsledky</button> 
-    <div id="results"></div> 
+
+    <button id="download-results" style="display:none;">Download Results</button>
+    <div id="results"></div>
+
     <script src="scripts/script.js"></script> 
 </body>
 </html>
