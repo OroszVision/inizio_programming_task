@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Install Chrome dependencies
 
 # Update packages and install dependencies
 apt-get update
@@ -17,5 +16,3 @@ google-chrome --version
 which google-chrome-stable
 ls -l /usr/bin/google-chrome
 ls -l /usr/bin/google-chrome-stable
-
-echo "Chrome installation check complete."
