@@ -17,11 +17,11 @@ app.post('/search', async (req, res) => {
 
     // Launch Puppeteer in Render environment
     const browser = await puppeteer.launch({
-        headless: "new", // Use the new Headless mode for Puppeteer
-        args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required for cloud environments like Render
-        executablePath: '/usr/bin/google-chrome', // Correct executable path
+        headless: "new", // Using the new Headless mode
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        executablePath: '/usr/bin/google-chrome-stable' // Update this based on verification
     });
-
+    
     const page = await browser.newPage();
     await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}`, { waitUntil: 'domcontentloaded' });
 
