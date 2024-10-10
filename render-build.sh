@@ -14,7 +14,7 @@ apt-get install -y google-chrome-stable
 # Verify installation
 echo "Installed Chrome version:"
 google-chrome --version
-which google-chrome
+which google-chrome-stable
 ls -l /usr/bin/google-chrome
 ls -l /usr/bin/google-chrome-stable
 
