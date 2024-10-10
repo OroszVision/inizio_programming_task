@@ -1,14 +1,13 @@
-const express = require('express');
 const puppeteer = require('puppeteer');
+const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve static files (like HTML, CSS, JS) from 'public' directory
-app.use(express.static('public'));
 app.use(express.json());
+app.use(express.static('public'));
 
 let latestResults = [];
 
@@ -16,38 +15,35 @@ let latestResults = [];
 app.post('/search', async (req, res) => {
     const query = req.body.query;
 
-    try {
-        // Launch Puppeteer with necessary flags for cloud hosting
-        const browser = await puppeteer.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
+    // Launch Puppeteer in Render environment
+    const browser = await puppeteer.launch({
+        headless: "new", // Use the new Headless mode for Puppeteer
+        args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required for cloud environments like Render
+        executablePath: '/usr/bin/google-chrome-stable' // Path to Chrome installed by render-build.sh
+    });
+
+    const page = await browser.newPage();
+    await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}`, { waitUntil: 'domcontentloaded' });
+
+    const data = await page.evaluate(() => {
+        const items = [];
+        const results = document.querySelectorAll('.g');
+        results.forEach(item => {
+            const title = item.querySelector('h3')?.innerText;
+            const link = item.querySelector('a')?.href;
+            const snippet = item.querySelector('.VwiC3b')?.innerText || "No snippet available";
+
+            if (title && link) {
+                items.push({ title, link, snippet });
+            }
         });
+        return items;
+    });
 
-        const page = await browser.newPage();
-        await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}`, { waitUntil: 'domcontentloaded' });
+    await browser.close();
 
-        const data = await page.evaluate(() => {
-            const items = [];
-            const results = document.querySelectorAll('.g');
-            results.forEach(item => {
-                const title = item.querySelector('h3')?.innerText;
-                const link = item.querySelector('a')?.href;
-                const snippet = item.querySelector('.VwiC3b')?.innerText || "No snippet available";
-
-                if (title && link) {
-                    items.push({ title, link, snippet });
-                }
-            });
-            return items;
-        });
-
-        await browser.close();
-        latestResults = data;
-        res.json(data);
-    } catch (error) {
-        console.error('Error fetching Google results:', error);
-        res.status(500).json({ error: 'Failed to fetch search results' });
-    }
+    latestResults = data;
+    res.json(data);
 });
 
 // Download route
@@ -58,20 +54,19 @@ app.get('/download', (req, res) => {
     if (format === 'json') {
         fs.writeFileSync(filePath, JSON.stringify(latestResults, null, 2));
     } else if (format === 'csv') {
-        const csvContent = "Title,Link,Snippet\n" + 
+        const csvContent = "Title,Link,Snippet\n" +
             latestResults.map(result => `${result.title},${result.link},"${result.snippet.replace(/"/g, '""')}"`).join('\n');
         fs.writeFileSync(filePath, csvContent);
     }
 
     res.download(filePath, err => {
         if (err) {
-            console.error('Error sending file:', err);
+            console.error('Error while sending file:', err);
         }
-        fs.unlinkSync(filePath); 
+        fs.unlinkSync(filePath);
     });
 });
 
-// Start server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
