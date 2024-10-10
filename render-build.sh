@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 
 # Update packages and install dependencies
-apt-get update
+apt-get update -y
 apt-get install -y wget gnupg2 apt-transport-https
 
-# Install Chromium
-apt-get install -y chromium
+# Add Google's signing key and install stable Chrome
+wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
+echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
+apt-get update -y
+apt-get install -y google-chrome-stable
 
 # Verify installation
-echo "Installed Chromium version:"
-chromium --version
-
-# Optional: List the installed binaries for debugging purposes
-which chromium
-ls -l /usr/bin/chromium
+echo "Installed Chrome version:"
+google-chrome --version
+which google-chrome-stable
+ls -l /usr/bin/google-chrome
+ls -l /usr/bin/google-chrome-stable
