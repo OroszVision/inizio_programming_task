@@ -42,23 +42,39 @@ app.post('/search', async (req, res) => {
         });
         
         const page = await browser.newPage();
-        await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}`, { waitUntil: 'domcontentloaded' });
 
+        // Intercept and block unnecessary resources like images, stylesheets, fonts, and media
+        await page.setRequestInterception(true);
+        page.on('request', (req) => {
+            const resourceType = req.resourceType();
+            if (['image', 'stylesheet', 'font', 'media'].includes(resourceType)) {
+                req.abort(); // Block these resource types
+            } else {
+                req.continue(); // Continue loading other necessary resources
+            }
+        });
+        
+        // Load the search page
+        await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}`, {
+            waitUntil: 'domcontentloaded' // Only wait for the basic HTML to load
+        });
+        
+        // Extract the search results
         const data = await page.evaluate(() => {
             const items = [];
-            const results = document.querySelectorAll('.g');
+            const results = document.querySelectorAll('.g'); // Select the organic results
             results.forEach(item => {
                 const title = item.querySelector('h3')?.innerText;
                 const link = item.querySelector('a')?.href;
                 const snippet = item.querySelector('.VwiC3b')?.innerText || "No snippet available";
-
+        
                 if (title && link) {
                     items.push({ title, link, snippet });
                 }
             });
             return items;
         });
-
+        
         await browser.close();
 
         // Cache the results for future requests
