@@ -28,7 +28,17 @@ app.post('/search', async (req, res) => {
         const browser = await puppeteer.launch({
             headless: true,
             executablePath: '/opt/render/project/.render/chrome/opt/google/chrome/chrome',
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--disable-extensions',
+                '--disable-images', 
+                '--disable-css',
+                '--disable-web-security',
+                '--enable-features=NetworkService,NetworkServiceInProcess'
+            ],
         });
         
         const page = await browser.newPage();
