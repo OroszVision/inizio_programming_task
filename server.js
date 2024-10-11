@@ -1,63 +1,38 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
-const NodeCache = require('node-cache');
 const fs = require('fs');
 const path = require('path');
-
+const NodeCache = require('node-cache'); // Adding node-cache
 const app = express();
 const PORT = process.env.PORT || 3000;
-const searchCache = new NodeCache({ stdTTL: 600 }); // Cache TTL set to 10 minutes
-
 app.use(express.json());
 app.use(express.static('public'));
 
-let browser; // Declare the browser instance
-
-// Initialize the browser (reuse the same instance across requests)
-async function initializeBrowser() {
-    if (!browser) {
-        browser = await puppeteer.launch({
-            headless: true,
-            executablePath: '/opt/render/project/.render/chrome/opt/google/chrome/chrome', // Adjust path based on Render installation
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
-    }
-}
-
-// Close the browser when the process exits
-process.on('exit', async () => {
-    if (browser) await browser.close();
-});
+// Create cache with a TTL of 10 minutes (600 seconds)
+const cache = new NodeCache({ stdTTL: 600 });
+let latestResults = [];  // Make sure this is globally accessible
 
 // Search route
 app.post('/search', async (req, res) => {
     const query = req.body.query;
 
-    // Check if the query exists in the cache
-    const cachedResults = searchCache.get(query);
-    if (cachedResults) {
-        return res.json(cachedResults);
-    }
-
     try {
-        await initializeBrowser(); // Ensure browser is initialized
+        // Check if results for the query are in cache
+        const cachedResults = cache.get(query);
+        if (cachedResults) {
+            console.log('Serving results from cache');
+            latestResults = cachedResults;
+            return res.json(cachedResults);
+        }
 
+        const browser = await puppeteer.launch({
+            headless: true,
+            executablePath: '/opt/render/project/.render/chrome/opt/google/chrome/chrome',
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
+        
         const page = await browser.newPage();
-
-        // Block unnecessary resources like images, CSS, and fonts
-        await page.setRequestInterception(true);
-        page.on('request', (req) => {
-            const resourceType = req.resourceType();
-            if (['image', 'stylesheet', 'font'].includes(resourceType)) {
-                req.abort();
-            } else {
-                req.continue();
-            }
-        });
-
-        await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}`, {
-            waitUntil: 'domcontentloaded',
-        });
+        await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}`, { waitUntil: 'domcontentloaded' });
 
         const data = await page.evaluate(() => {
             const items = [];
@@ -74,10 +49,12 @@ app.post('/search', async (req, res) => {
             return items;
         });
 
-        await page.close(); // Close the page (but keep the browser open)
+        await browser.close();
 
-        searchCache.set(query, data); // Cache the results for future requests
+        // Cache the results for future requests
+        cache.set(query, data);
 
+        latestResults = data;  // Update latestResults for download
         res.json(data);
     } catch (error) {
         console.error('Error fetching Google results:', error);
@@ -90,24 +67,25 @@ app.get('/download', (req, res) => {
     const format = req.query.format || 'json';
     const filePath = path.join(__dirname, `results.${format}`);
 
-    if (!latestResults || latestResults.length === 0) {
-        return res.status(404).send('No search results available to download');
-    }
-
-    if (format === 'json') {
-        fs.writeFileSync(filePath, JSON.stringify(latestResults, null, 2));
-    } else if (format === 'csv') {
-        const csvContent = "Title,Link,Snippet\n" +
-            latestResults.map(result => `${result.title},${result.link},"${result.snippet.replace(/"/g, '""')}"`).join('\n');
-        fs.writeFileSync(filePath, csvContent);
-    }
-
-    res.download(filePath, (err) => {
-        if (err) {
-            console.error('Error while sending file:', err);
+    try {
+        if (format === 'json') {
+            fs.writeFileSync(filePath, JSON.stringify(latestResults, null, 2));
+        } else if (format === 'csv') {
+            const csvContent = "Title,Link,Snippet\n" + 
+                latestResults.map(result => `${result.title},${result.link},"${result.snippet.replace(/"/g, '""')}"`).join('\n');
+            fs.writeFileSync(filePath, csvContent);
         }
-        fs.unlinkSync(filePath); // Clean up the file after download
-    });
+
+        res.download(filePath, (err) => {
+            if (err) {
+                console.error('Error while sending file:', err);
+            }
+            fs.unlinkSync(filePath); // Remove the file after download
+        });
+    } catch (error) {
+        console.error('Error during file generation or download:', error);
+        res.status(500).send('Error generating or downloading file');
+    }
 });
 
 app.listen(PORT, () => {
