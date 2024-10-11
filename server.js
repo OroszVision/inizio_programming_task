@@ -17,7 +17,7 @@ let browser; // Globally declare browser instance
 // Pre-launch Puppeteer instance
 (async () => {
     browser = await puppeteer.launch({
-        headless: true,
+        headless: 'new',
         executablePath: '/opt/render/project/.render/chrome/opt/google/chrome/chrome',
         args: [
             '--no-sandbox',
