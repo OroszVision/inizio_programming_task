@@ -57,8 +57,9 @@ app.post('/search', async (req, res) => {
         await page.setRequestInterception(true);
         page.on('request', (req) => {
             const resourceType = req.resourceType();
-            if (['image', 'stylesheet', 'font', 'media'].includes(resourceType)) {
-                req.abort(); // Block these resource types
+            const url = req.url();
+            if (['image', 'stylesheet', 'font', 'media', 'script', 'xhr', 'fetch'].includes(resourceType) || url.includes('google-analytics') || url.includes('gstatic')) {
+                req.abort(); // Block these resource types and analytics requests
             } else {
                 req.continue(); // Allow only necessary resources
             }
@@ -66,7 +67,7 @@ app.post('/search', async (req, res) => {
 
         // Load Google Search results page with basic HTML only
         await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}`, {
-            waitUntil: 'domcontentloaded' // Wait for the main DOM to load
+               waitUntil: 'networkidle2'
         });
 
         // Extract search results (title, link, snippet)
