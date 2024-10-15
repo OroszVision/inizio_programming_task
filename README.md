@@ -21,8 +21,8 @@ JavaScript dynamically creates and displays each search result on the webpage (t
 4. Download Results (JSON/CSV)
 Users can download the search results in either JSON or CSV format.
 To download in a specific format, use the following:
-For CSV: http://your-domain.com/download?format=csv
-For JSON (default): http://your-domain.com/download?format=json
+For CSV: [https://inizio-programming-task-xviy.onrender.com/download?format=csv]
+For JSON (default): [https://inizio-programming-task-xviy.onrender.com/download?format=json]
 8. Performance Optimizations
 Caching: Recently searched queries are stored in cache (for 1 hour). If the same query is repeated, the cached results are returned instantly.
 Resource Blocking: Puppeteer is optimized to block unnecessary resources like images, stylesheets, and fonts, which speeds up page loading and search result extraction.
